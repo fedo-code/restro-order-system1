@@ -1,0 +1,23 @@
+<div class="payment-container">
+  <h2>Complete your order</h2>
+  <h3>I want to buy  {{name}} </h3>
+
+  <h3>Choose size</h3>
+  <div class="radio-group">
+    <label>
+      <input type="radio" name="size" value="{{price_small}}" onclick="$dc.setPrice(this.value)"> 
+      Pint ({{price_small}})
+    </label>
+    <br>
+    <label>
+      <input type="radio" name="size" value="{{price_large}}" onclick="$dc.setPrice(this.value)"> 
+      Quart ({{price_large}})
+    </label>
+  </div>
+
+  <div class="amount-display">
+    <input type="text" id="price" class="form-control" placeholder="Amount in INR" readonly>
+  </div>
+  
+  <button id="pay-btn" class="btn btn-primary" onclick="payNow()">Pay Now</button>
+</div>
