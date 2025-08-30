@@ -21,7 +21,7 @@ It is primarily JavaScript based, but has been developed within a React environm
 
 1. Clone the repository  
    bash
-   git clone https://github.com/username/projectroot.git
+   git clone https://github.com/fedo-code/restro-order-system1
    cd Rootproject
 
 2.Install dependencies
