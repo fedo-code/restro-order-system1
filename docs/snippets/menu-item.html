@@ -1,15 +1,43 @@
+<!-- Example Menu Item -->
 <div class="menu-item-tile col-md-6">
   <div class="row">
     <div class="col-sm-5">
-   <a href="javascript:void(0)" onclick="goToPay('{{name}}', '{{short_name}}', '{{price_small}}', '{{price_large}}')">
-
-
       <div class="menu-item-photo">
-        <div>{{short_name}}</div>
-        <img class="img-responsive" width="250" height="150" src="/images/menu/{{catShortName}}/{{short_name}}.jpg" alt="Item">
+        <img class="img-responsive" width="250" height="150"
+             src="/images/menu/{{catShortName}}/{{short_name}}.jpg" alt="{{name}}">
       </div>
-    </a>
-      <div class="menu-item-price">{{price_small}}<span> {{small_portion_name}}</span> {{price_large}} <span>{{large_portion_name}}</span></div>
+
+      <!-- Size + Price + Single Add Button -->
+      <div class="menu-item-price">
+        {{#if price_small}}
+  <label>
+    <input type="radio" name="size-{{short_name}}" 
+           value="Small" 
+           data-price="{{price_small}}" 
+           data-short="{{short_name}}">
+    Small - ${{price_small}} <span>{{small_portion_name}}</span>
+  </label>
+{{/if}}
+
+{{#if price_large}}
+  <label>
+    <input type="radio" name="size-{{short_name}}" 
+           value="Large" 
+           data-price="{{price_large}}" 
+           data-short="{{short_name}}">
+    Large - ${{price_large}} <span>{{large_portion_name}}</span>
+  </label>
+{{/if}}
+
+
+        <div id="actions-{{short_name}}">
+          <button type="button" class="btn btn-success btn-xs add-btn"
+                  data-short="{{short_name}}"
+                  data-name="{{name}}">
+            Add
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="menu-item-description col-sm-7">

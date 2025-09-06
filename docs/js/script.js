@@ -1,6 +1,6 @@
 
 $(function () {
-  // ✅ Nav link click: run JS + collapse after short delay
+  //  Nav link click: run JS + collapse after short delay
   $('#collapsable-nav').on('click touchend', 'a', function (e) {
     e.preventDefault();
 
@@ -24,17 +24,17 @@ $(function () {
            
 
        else if (href && href !== '#') {
-        event.preventDefault();                 // 1️⃣ Link ka default reload behaviour rokta hai
-    history.pushState({}, '', href);        // 2️⃣ Browser URL ko update karta hai bina page reload ke
-    const route = href.slice(1);            // 3️⃣ "/home" ko "home" bana deta hai
+        event.preventDefault();                 
+    history.pushState({}, '', href);        
+    const route = href.slice(1);           
     handleRoute(route);         
       }
     });
   });
 
-  // ✅ Tap outside of menu to auto-collapse
+  //  Tap outside of menu to auto-collapse
   $(document).on('click touchend', function (e) {
-    // Agar tap navbar ke andar ya toggle button pe nahi hua:
+    
     if ($(e.target).closest('#collapsable-nav, #navbarToggle').length === 0) {
       $('#collapsable-nav').collapse('hide');
     }
@@ -164,7 +164,7 @@ $(function () {
   // Load the menu items view
   // 'categoryShort' is a short_name for a category
  dc.loadMenuItems = function (categoryShort) {
-  console.log("📥 loadMenuItems started for:", categoryShort);
+  console.log(" loadMenuItems started for:", categoryShort);
  setActive("#navMenuButton");
   showLoading("#main-content");
   setTimeout(function () {
@@ -177,7 +177,7 @@ $(function () {
    //loadPay
 
   dc.loadPay = function(c_name, s_name, s_price, l_price) {
-  console.log("✅ loadPay called with:", c_name, s_name, s_price, l_price); 
+  console.log(" loadPay called with:", c_name, s_name, s_price, l_price); 
 
   showLoading("#main-content"); 
 
@@ -188,7 +188,7 @@ $(function () {
 
     insertHtml("#main-content", PayView);
 
-    // ✅ Yeh zaroori hai!
+    
    
 
   }, false);
@@ -340,25 +340,35 @@ function buildAndShowCategoriesHTML(categories) {
   // Appends price with '$' if price exists
 
 function insertItemPrice(html, pricePropName, priceValue) {
-  console.log("📌 Before insertProperty");
+  console.log(" Before insertProperty");
   console.log("pricePropName:", pricePropName);
   console.log("Original priceValue:", priceValue);
   console.log("Original snippet HTML:\n", html);
 
-  // Check for undefined or invalid number
+  // Agar price invalid hai to pura {{#if ...}} block hata do
   if (!priceValue || isNaN(parseFloat(priceValue))) {
-    console.log("❌ Invalid priceValue detected:", priceValue);
+    console.log(" Invalid priceValue detected:", priceValue);
+    // Regex: {{#if price_small}} ... {{/if}} 
+    let blockRegex = new RegExp("{{#if " + pricePropName + "}}[\\s\\S]*?{{/if}}", "g");
+    html = html.replace(blockRegex, "");
     return insertProperty(html, pricePropName, "");
   }
 
+  // Agar price valid hai -> value format karo
   priceValue = "$" + parseFloat(priceValue).toFixed(2);
-  console.log("✅ Formatted priceValue:", priceValue);
+  console.log(" Formatted priceValue:", priceValue);
 
+  //  Block ke andar replace karo
+  let blockRegex = new RegExp("{{#if " + pricePropName + "}}([\\s\\S]*?){{/if}}", "g");
+  html = html.replace(blockRegex, "$1"); // sirf inner part rakho
+
+  //  Ab normal {{price_small}} replace karo
   html = insertProperty(html, pricePropName, priceValue);
-  console.log("✅ After insertProperty, updated HTML:\n", html);
 
+  console.log(" After insertProperty, updated HTML:\n", html);
   return html;
 }
+
 
 
   // Appends portion name in parens if it exists
@@ -435,59 +445,55 @@ async function payNow() {
   try {
     payBtn.disabled = true;
     payBtn.textContent = 'Processing...';
-    
-    // 1. Razorpay load karo 
+
     await loadRazorpay();
-    
-    // 2. Order create karo
+
+    //  Use the correct cart total in paisa
+    const amount = window.selectedAmountInPaisa;
+    if(!amount || amount <= 0){
+      alert("Cart is empty or invalid amount!");
+      return;
+    }
+
     const order = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount: selectedAmountInPaisa }) 
+      body: JSON.stringify({ amount }) 
     }).then(r => r.json());
-    
-    // 3. Payment options
+
     const options = {
-      key: 'rzp_test_1DP5mmOlF5G5ag', // Apna key verify karo
+      key: 'rzp_test_1DP5mmOlF5G5ag',
       amount: order.amount,
       currency: 'INR',
       name: 'Global graceful Kitchen',
       description: 'Food Order',
-      image: 'https://example.com/logo.png', // Apna logo daalo
       handler: function(response) {
         alert(`Payment successful! ID: ${response.razorpay_payment_id}`);
-      },
-      modal: {
-        escape: false, // Brave ke liye important
-        ondismiss: function() {
-          alert('Payment window closed');
-        }
       },
       notes: {
         merchant_order_id: order.id
       }
     };
-     
-    // 4. Payment open karo
+
     const rzp = new Razorpay(options);
     rzp.open();
-    
+
   } catch (error) {
     alert(`Error: ${error.message}`);
-  } finally { 
+  } finally {
     payBtn.disabled = false;
     payBtn.textContent = 'Pay Now';
   }
 }
 
+
   global.$dc = dc;
 
   global.payNow = payNow;
 })(window);
-// ✅ 🔽🔽🔽 SPA ROUTER ADDITION STARTS HERE 🔽🔽🔽
+//  SPA ROUTER ADDITION STARTS HERE 
 
-// ✅ GLOBAL CLICK HANDLER for navbar + content links
-// ✅ GLOBAL CLICK HANDLER for navbar + content links
+//  GLOBAL CLICK HANDLER for navbar + content links
 document.addEventListener("click", function (e) {
   const target = e.target.closest("a");
 
@@ -506,7 +512,7 @@ document.addEventListener("click", function (e) {
   }
 });
 
-// ✅ Route rendering logic
+//  Route rendering logic
 function handleRoute(route) {
   const parts = route.split("/");
   const base = parts[0];
@@ -541,19 +547,19 @@ function handleRoute(route) {
 }
 
 
-// ✅ Handle back/forward button (SPA navigation)
+//  Handle back/forward button (SPA navigation)
 window.onpopstate = function () {
   const route = window.location.pathname.slice(1);
   handleRoute(route);
 };
  
-// ✅ Load initial route on first load
+//  Load initial route on first load
 window.addEventListener("DOMContentLoaded", function () {
   const initialRoute = window.location.pathname.slice(1) || "home";
   handleRoute(initialRoute);
 });
 
-// ✅ SPA Trigger helper function for Pay page
+//  SPA Trigger helper function for Pay page
 function goToPay(name, short_name, price_small, price_large) {
   const sPriceEncoded = encodeURIComponent(price_small);
   const lPriceEncoded = encodeURIComponent(price_large);
@@ -567,5 +573,140 @@ function goToPay(name, short_name, price_small, price_large) {
   handleRoute(route);
 
 }
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+const usdToInr = 83;
 
-// ✅ 🔼🔼🔼 SPA ROUTER ENDS HERE 🔼🔼🔼
+function showToast(message) {
+  const toast = document.getElementById("cart-toast");
+  toast.innerText = message;
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 2000);
+}
+
+
+function updateCartCount(){ 
+  document.getElementById("cart-count").innerText = cart.reduce((a,b)=>a+b.qty,0);
+}
+updateCartCount();
+
+function openCart(e){ 
+  e.preventDefault(); 
+  document.getElementById("cart-overlay").style.display="block"; 
+  renderCart();
+}
+function closeCart(){ 
+  document.getElementById("cart-overlay").style.display="none";
+}
+
+document.addEventListener("click", function(e){
+  //  Add to cart button
+  if(e.target.classList.contains("add-btn")){
+    const shortName = e.target.dataset.short;
+    const name = e.target.dataset.name;
+
+    const selectedRadio = document.querySelector(`input[name='size-${shortName}']:checked`);
+    if(!selectedRadio){
+      alert("Please select a size before adding!");
+      return;
+    }
+     
+    const size = selectedRadio.value;
+
+    //  Safe price extraction
+    const rawPrice = selectedRadio.dataset.price;
+
+    //  Debug logs
+    console.log(" DEBUG Add-to-Cart:", {
+      shortName,
+      name,
+      size,
+      rawPrice
+    });
+
+    let price = 0;
+    if (rawPrice && !isNaN(parseFloat(rawPrice.replace(/[^0-9.]/g, "")))) {
+      price = parseFloat(rawPrice.replace(/[^0-9.]/g, ""));
+      console.log(" Parsed Price:", price);
+    } else {
+      console.error(" Price not found for:", name, size, rawPrice);
+      alert("Price not found! Please check data-price attribute in HTML.");
+      return;
+    }
+
+    //  Add/update cart item (fixed price null issue)
+    let existing = cart.find(i => i.shortName === shortName && i.size === size);
+    if(existing){
+      existing.qty++;
+      if (!existing.price || isNaN(existing.price)) {
+        existing.price = price;  //  price overwrite fix
+      }
+      console.log(" Updated Qty:", existing);
+    } else {
+      const newItem = { shortName, name, size, price, qty: 1 };
+      cart.push(newItem);
+      console.log(" New Item Added:", newItem);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
+    showToast(`${name} (${size}) added to cart!`);
+  }
+
+  //  Quantity increase/decrease buttons
+  if(e.target.classList.contains("inc-btn"))
+    changeQty(e.target.dataset.short, e.target.dataset.size, 1);
+
+  if(e.target.classList.contains("dec-btn"))
+    changeQty(e.target.dataset.short, e.target.dataset.size, -1);
+});
+
+function changeQty(shortName,size,delta){
+  let item = cart.find(i=>i.shortName===shortName && i.size===size);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty<=0) cart = cart.filter(i=>!(i.shortName===shortName && i.size===size));
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartCount();
+  renderCart();
+}
+
+function renderCart(){
+  const cartList = document.getElementById("cart-items");
+  cartList.innerHTML="";
+  let totalUsd = 0;
+  if(cart.length===0){ 
+    cartList.innerHTML="<li>Your cart is empty</li>"; 
+  }
+  else{
+    cart.forEach(item=>{
+      const li=document.createElement("li");
+      li.innerHTML=`${item.name} (${item.size}) x ${item.qty} = $${(item.price*item.qty).toFixed(2)}
+        <button class="btn btn-danger btn-xs dec-btn" data-short="${item.shortName}" data-size="${item.size}">-</button>
+        <button class="btn btn-primary btn-xs inc-btn" data-short="${item.shortName}" data-size="${item.size}">+</button>`;
+      cartList.appendChild(li);
+      totalUsd += item.price*item.qty;
+    });
+  }
+
+  //  Update totals
+  document.getElementById("total-usd").innerText = totalUsd.toFixed(2);
+  document.getElementById("total-inr").innerText = (totalUsd * usdToInr).toFixed(0);
+
+  //  Store paisa value globally for Razorpay
+  window.selectedAmountInPaisa = Math.round(totalUsd * usdToInr * 100);
+  console.log(" Final amount in paisa (for Razorpay):", window.selectedAmountInPaisa);
+
+  //  Pay button inject only if cart not empty
+  const payDivContainer = document.getElementById("pay-btn-container");
+  if(cart.length > 0){
+    payDivContainer.innerHTML = `
+      <button id="pay-btn" class="btn btn-primary mt-3" onclick="payNow()">Pay Now</button>
+    `;
+  } else {
+    payDivContainer.innerHTML = "";
+  }
+}
+
+
