@@ -451,5 +451,60 @@ text-align: center;
   }
 }
 
+#navCartButton a {
+  color: #951C49;
+  text-align: center;
+  display: block;
+  padding: 10px 15px;
+  line-height: 1;
+  position: relative;
+}
+
+#navCartButton .glyphicon {
+  display: block;      
+  font-size: 1.8em;
+  margin-bottom: 10px;   /* icon aur text ke beech aur proper gap */
+  line-height: 1;
+  position: relative;
+  top: 7px;  /* menu ke items ke sath vertical alignment */
+}
+
+#navCartButton br.hidden-xs {
+  display: none; 
+}
+
+#navCartButton #cart-count {
+  font-size: 0.9em;        
+  vertical-align: baseline; 
+}
+
+#navCartButton a:hover {
+  background: #E7E7E7;
+  text-decoration: none;
+}
+
+/* Mobile view */
+@media (max-width: 767px) {
+  #navCartButton a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 15px;
+    gap: 4px;  /* mobile me icon-text gap */
+  }
+
+  #navCartButton .glyphicon {
+    display: inline-block;
+    margin: 0;     
+    font-size: 1.2em;
+    top: 0; 
+    position: relative;
+  }
+
+  #navCartButton br.hidden-xs {
+    display: none; 
+  }
+}
 
 

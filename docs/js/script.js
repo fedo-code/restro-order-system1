@@ -573,6 +573,7 @@ function goToPay(name, short_name, price_small, price_large) {
   handleRoute(route);
 
 }
+
 let cart = JSON.parse(localStorage.getItem("cart") || "[]");
 const usdToInr = 83;
 
@@ -585,23 +586,27 @@ function showToast(message) {
   }, 2000);
 }
 
-
 function updateCartCount(){ 
   document.getElementById("cart-count").innerText = cart.reduce((a,b)=>a+b.qty,0);
 }
 updateCartCount();
 
 function openCart(e){ 
-  e.preventDefault(); 
-  document.getElementById("cart-overlay").style.display="block"; 
+  if(e){
+    e.preventDefault();     // ✅ Anchor ka default jump block karega
+    e.stopPropagation();    // ✅ Bootstrap collapse close hone se rokega
+  }
+  document.getElementById("cart-overlay").style.display = "block"; 
   renderCart();
 }
+
 function closeCart(){ 
   document.getElementById("cart-overlay").style.display="none";
 }
+window.closeCart = closeCart;  // ✅ Close button ke liye global
 
 document.addEventListener("click", function(e){
-  //  Add to cart button
+  // ✅ Add to cart button
   if(e.target.classList.contains("add-btn")){
     const shortName = e.target.dataset.short;
     const name = e.target.dataset.name;
@@ -613,40 +618,25 @@ document.addEventListener("click", function(e){
     }
      
     const size = selectedRadio.value;
-
-    //  Safe price extraction
     const rawPrice = selectedRadio.dataset.price;
-
-    //  Debug logs
-    console.log(" DEBUG Add-to-Cart:", {
-      shortName,
-      name,
-      size,
-      rawPrice
-    });
 
     let price = 0;
     if (rawPrice && !isNaN(parseFloat(rawPrice.replace(/[^0-9.]/g, "")))) {
       price = parseFloat(rawPrice.replace(/[^0-9.]/g, ""));
-      console.log(" Parsed Price:", price);
     } else {
-      console.error(" Price not found for:", name, size, rawPrice);
       alert("Price not found! Please check data-price attribute in HTML.");
       return;
     }
 
-    //  Add/update cart item (fixed price null issue)
     let existing = cart.find(i => i.shortName === shortName && i.size === size);
     if(existing){
       existing.qty++;
       if (!existing.price || isNaN(existing.price)) {
-        existing.price = price;  //  price overwrite fix
+        existing.price = price;
       }
-      console.log(" Updated Qty:", existing);
     } else {
       const newItem = { shortName, name, size, price, qty: 1 };
       cart.push(newItem);
-      console.log(" New Item Added:", newItem);
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -654,7 +644,7 @@ document.addEventListener("click", function(e){
     showToast(`${name} (${size}) added to cart!`);
   }
 
-  //  Quantity increase/decrease buttons
+  // ✅ Quantity increase/decrease buttons
   if(e.target.classList.contains("inc-btn"))
     changeQty(e.target.dataset.short, e.target.dataset.size, 1);
 
@@ -690,15 +680,14 @@ function renderCart(){
     });
   }
 
-  //  Update totals
+  // ✅ Update totals
   document.getElementById("total-usd").innerText = totalUsd.toFixed(2);
   document.getElementById("total-inr").innerText = (totalUsd * usdToInr).toFixed(0);
 
-  //  Store paisa value globally for Razorpay
+  // ✅ Store paisa value globally for Razorpay
   window.selectedAmountInPaisa = Math.round(totalUsd * usdToInr * 100);
-  console.log(" Final amount in paisa (for Razorpay):", window.selectedAmountInPaisa);
 
-  //  Pay button inject only if cart not empty
+  // ✅ Pay button inject only if cart not empty
   const payDivContainer = document.getElementById("pay-btn-container");
   if(cart.length > 0){
     payDivContainer.innerHTML = `
@@ -709,4 +698,11 @@ function renderCart(){
   }
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+  const cartBtn = document.getElementById("cartBtn");
 
+  // ✅ Click + Touch dono add karo
+  ["click", "touchstart"].forEach(evt => {
+    cartBtn.addEventListener(evt, openCart, false);
+  });
+});
